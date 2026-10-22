@@ -62,25 +62,16 @@ function sortByYearDesc(items, field) {
   });
 }
 
-/* ---------------- Renderers ---------------- */
-function renderNewsLike(items) {
-  if (items.length === 0) return '<div class="empty-note">Nothing here yet.</div>';
-  return items.map(it => `
-    <div class="list-item">
-      <span class="date-pill">${it.date ?? it.year ?? ''}</span>
-      <span class="item-text">${it.text || ''}</span>
-    </div>`).join('');
-}
-
-/* Publications: year/title/venue are fixed, styled fields. Everything
-   else is open-ended — ANY column whose header ends in "url" (pdf_url,
-   code_url, arxiv_url, poster_url, slides_url, demo_url, doi_url, ...)
-   is picked up automatically and rendered as a labelled link, in the
-   same left-to-right order as the columns in the sheet. Add a column
-   in data.xlsx, give it a name ending in "_url", fill it in for a row —
-   it shows up on the site with no code change. Leave it blank for a
-   row and nothing renders for that row. */
-const PUBLICATION_FIXED_FIELDS = new Set(['year', 'title', 'venue']);
+/* ---------------- Link-column auto-detection ----------------
+   Shared by every section. A sheet's "fixed" columns are styled
+   specially (date/text, or year/title/venue); every OTHER column
+   whose header ends in "url" is picked up automatically and shown
+   as a labelled link, in the same left-to-right order as the
+   columns in the sheet. Add a column in data.xlsx, name it anything
+   ending in "_url" (pdf_url, code_url, arxiv_url, poster_url,
+   slides_url, video_url, doi_url, event_url, certificate_url, ...),
+   fill it in for a row — it shows up with no code change. Leave a
+   cell blank and nothing renders for that row. */
 const LINK_LABEL_OVERRIDES = {
   pdf: 'PDF', arxiv: 'arXiv', doi: 'DOI', bibtex: 'BibTeX', api: 'API',
   isbn: 'ISBN', slides: 'Slides', poster: 'Poster', video: 'Video',
@@ -93,20 +84,50 @@ function labelForLinkColumn(column) {
   if (override) return override;
   return base.replace(/\b\w/g, c => c.toUpperCase());
 }
+function extractLinkChips(it, fixedFields) {
+  const chips = [];
+  Object.keys(it).forEach(column => {
+    const lower = column.trim().toLowerCase();
+    if (fixedFields.has(lower)) return;
+    if (!lower.endsWith('url')) return;
+    const value = it[column];
+    if (!value) return;
+    chips.push(`<a href="${escapeAttr(value)}" target="_blank" rel="noopener">${escapeHtml(labelForLinkColumn(column))}</a>`);
+  });
+  return chips;
+}
 
+/* ---------------- Renderers ---------------- */
+
+/* News / Awards / Service: date + text are the fixed fields. Any
+   "*_url" column (e.g. a news item linking to a press article, an
+   award linking to a certificate, a service entry linking to a CFP)
+   is auto-detected the same way as in Publications — just give it a
+   custom name ending in "_url". */
+const NEWSLIKE_FIXED_FIELDS = new Set(['date', 'year', 'text']);
+function renderNewsLike(items) {
+  if (items.length === 0) return '<div class="empty-note">Nothing here yet.</div>';
+  return items.map(it => {
+    const chips = extractLinkChips(it, NEWSLIKE_FIXED_FIELDS);
+    const links = chips.length ? `<div class="item-meta">${chips.join(' &nbsp;&middot;&nbsp; ')}</div>` : '';
+    return `
+    <div class="list-item">
+      <span class="date-pill">${it.date ?? it.year ?? ''}</span>
+      <div>
+        <div class="item-text">${it.text || ''}</div>
+        ${links}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* Publications: year/title/venue are the fixed, styled fields. */
+const PUBLICATION_FIXED_FIELDS = new Set(['year', 'title', 'venue']);
 function renderPublications(items) {
   if (items.length === 0) return '<div class="empty-note">Nothing here yet.</div>';
   return items.map(it => {
-    const linkChips = [];
-    Object.keys(it).forEach(column => {
-      const lower = column.trim().toLowerCase();
-      if (PUBLICATION_FIXED_FIELDS.has(lower)) return;
-      if (!lower.endsWith('url')) return;
-      const value = it[column];
-      if (!value) return;
-      linkChips.push(`<a href="${escapeAttr(value)}" target="_blank" rel="noopener">${escapeHtml(labelForLinkColumn(column))}</a>`);
-    });
-    const links = linkChips.join(' &nbsp;&middot;&nbsp; ');
+    const chips = extractLinkChips(it, PUBLICATION_FIXED_FIELDS);
+    const links = chips.join(' &nbsp;&middot;&nbsp; ');
     return `
     <div class="list-item">
       <span class="tag">${escapeHtml(it.year ?? '')}</span>

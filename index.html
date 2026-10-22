@@ -56,7 +56,7 @@
         </a>
       </div>
     </div>
-    <img class="avatar" id="avatar" src="https://scai.iitd.ac.in/public/uploads/aiz258466_himanshukumar.jpg" alt="Himanshu Kumar">
+    <img class="avatar" src="https://scai.iitd.ac.in/public/uploads/aiz258466_himanshukumar.jpg" alt="Himanshu Kumar">
   </section>
 
   <section id="news" class="section container">
@@ -95,7 +95,7 @@
 
 <footer id="contact" class="site-footer">
   <p>Open to relevant collaborations and opportunities — feel free to reach out.</p>
-  <a class="btn-outline" href="#" rel="nofollow" data-user="himanshu" data-domain="9082@gmail.com">Email me</a>
+  <a class="btn-outline" id="email-link" href="#" rel="nofollow">Email me</a>
 </footer>
 
 <script src="js/site.js"></script>
@@ -104,6 +104,19 @@
   renderSection('publications', 'publications-list', { limit: 2, renderer: renderPublications, sortField: 'year' });
   renderSection('awards', 'awards-list', { limit: 3, renderer: renderNewsLike, sortField: 'date' });
   renderSection('service', 'service-list', { limit: 3, renderer: renderNewsLike, sortField: 'date' });
+
+  // Email, base64-encoded so neither "@" nor "mailto:" nor the address
+  // itself appears anywhere in this page's source — only decoded in the
+  // browser at runtime. Stronger than splitting it across two data-
+  // attributes (which still leaves readable fragments sitting in the
+  // raw HTML). To change the address: encode it yourself, e.g. in a
+  // browser console run btoa('you@domain.com'), and paste the result
+  // below.
+  (function () {
+    var encodedEmail = 'aGltYW5zaHU5MDgyQGdtYWlsLmNvbQ==';
+    var link = document.getElementById('email-link');
+    if (link) link.href = 'mailto:' + atob(encodedEmail);
+  })();
 </script>
 </body>
 </html>
