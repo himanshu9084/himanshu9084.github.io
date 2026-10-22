@@ -14,6 +14,24 @@ const DATA_SOURCES = {
   service: 'data/service.csv',
 };
 
+/* ============================================================
+   Profile photo
+   --------------------------------------------------------------
+   Two ways to set it — pick one, it's a single line either way:
+
+   Option A — static upload: put the image file in img/ (e.g.
+     img/photo.jpg) and point this at it:
+       const PROFILE_PHOTO_URL = 'img/photo.jpg';
+
+   Option B — URL: point this straight at any direct image link
+     (GitHub raw URL, a Google Drive "direct link", etc.) and skip
+     keeping the file in the repo at all:
+       const PROFILE_PHOTO_URL = 'https://example.com/photo.jpg';
+
+   Either way, this is the only line you change.
+   ============================================================ */
+const PROFILE_PHOTO_URL = 'img/placeholder.svg';
+
 /* ---------------- CSV parsing ----------------
    Minimal RFC4180-ish parser: handles quoted fields, commas and
    double-quotes inside quotes (""), and \r\n or \n line endings.
@@ -145,4 +163,17 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
+
+  // Profile photo (index.html only — other pages have no #avatar element)
+  const avatar = document.getElementById('avatar');
+  if (avatar && PROFILE_PHOTO_URL) avatar.src = PROFILE_PHOTO_URL;
+
+  // Email links: built from data-user/data-domain at runtime so the
+  // address never sits as plain text (or "mailto:...@...") in the HTML
+  // that scrapers read. Not bulletproof against bots that run JS, but it
+  // stops the simple "grep the page for an @ sign" crawlers most spam
+  // harvesting relies on.
+  document.querySelectorAll('[data-user][data-domain]').forEach(el => {
+    el.setAttribute('href', 'mailto:' + el.dataset.user + '@' + el.dataset.domain);
+  });
 });
