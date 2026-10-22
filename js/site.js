@@ -72,13 +72,41 @@ function renderNewsLike(items) {
     </div>`).join('');
 }
 
+/* Publications: year/title/venue are fixed, styled fields. Everything
+   else is open-ended — ANY column whose header ends in "url" (pdf_url,
+   code_url, arxiv_url, poster_url, slides_url, demo_url, doi_url, ...)
+   is picked up automatically and rendered as a labelled link, in the
+   same left-to-right order as the columns in the sheet. Add a column
+   in data.xlsx, give it a name ending in "_url", fill it in for a row —
+   it shows up on the site with no code change. Leave it blank for a
+   row and nothing renders for that row. */
+const PUBLICATION_FIXED_FIELDS = new Set(['year', 'title', 'venue']);
+const LINK_LABEL_OVERRIDES = {
+  pdf: 'PDF', arxiv: 'arXiv', doi: 'DOI', bibtex: 'BibTeX', api: 'API',
+  isbn: 'ISBN', slides: 'Slides', poster: 'Poster', video: 'Video',
+  demo: 'Demo', code: 'Code', dataset: 'Dataset', talk: 'Talk',
+};
+function labelForLinkColumn(column) {
+  const base = column.replace(/_?url$/i, '').replace(/_/g, ' ').trim();
+  if (!base) return 'Link';
+  const override = LINK_LABEL_OVERRIDES[base.toLowerCase()];
+  if (override) return override;
+  return base.replace(/\b\w/g, c => c.toUpperCase());
+}
+
 function renderPublications(items) {
   if (items.length === 0) return '<div class="empty-note">Nothing here yet.</div>';
   return items.map(it => {
-    const links = [
-      it.pdf_url ? `<a href="${escapeAttr(it.pdf_url)}" target="_blank" rel="noopener">PDF</a>` : '',
-      it.code_url ? `<a href="${escapeAttr(it.code_url)}" target="_blank" rel="noopener">Code</a>` : '',
-    ].filter(Boolean).join(' &nbsp;&middot;&nbsp; ');
+    const linkChips = [];
+    Object.keys(it).forEach(column => {
+      const lower = column.trim().toLowerCase();
+      if (PUBLICATION_FIXED_FIELDS.has(lower)) return;
+      if (!lower.endsWith('url')) return;
+      const value = it[column];
+      if (!value) return;
+      linkChips.push(`<a href="${escapeAttr(value)}" target="_blank" rel="noopener">${escapeHtml(labelForLinkColumn(column))}</a>`);
+    });
+    const links = linkChips.join(' &nbsp;&middot;&nbsp; ');
     return `
     <div class="list-item">
       <span class="tag">${escapeHtml(it.year ?? '')}</span>
