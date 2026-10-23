@@ -12,10 +12,37 @@
   --line-soft: #2f2f2f;
   --text-muted: #cfcfcf;
   --text-faint: #9a9a9a;
+  --text-body: #e0e0e0;
   --accent-soft: #9fc1dd;
 }
 
+/* Light theme — same 3 brand colors, roles flipped (bg/nc swap, --bo stays
+   the accent in both). Applied via data-theme="light" on <html>, set by
+   js/site.js (persisted in localStorage) and by the early inline script
+   in each page's <head> that avoids a flash of the wrong theme. */
+:root[data-theme="light"] {
+  --bg: #F5F5F5;
+  --nc: #1a1a1a;
+  --bo: #2d6898;
+  --bg-raised: #ffffff;
+  --bg-nav: #ffffff;
+  --line: #dcdcdc;
+  --line-soft: #e6e6e6;
+  --text-muted: #4a4a4a;
+  --text-faint: #6e6e6e;
+  --text-body: #2a2a2a;
+  --accent-soft: #1f5075;
+}
+
 * { box-sizing: border-box; }
+
+/* Smooths the switch when the toggle is clicked; harmless on normal
+   page load since the early inline script in <head> sets the theme
+   before first paint, so there's nothing to visibly transition then. */
+body, .site-nav, .nav-links, .card-list, .theme-toggle, .icon-link,
+.btn-outline, .list-item {
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
 
 html, body {
   margin: 0;
@@ -60,7 +87,7 @@ h1, h2, h3 {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 24px;
   padding: 16px 24px;
 }
 .brand {
@@ -69,7 +96,34 @@ h1, h2, h3 {
   font-weight: 600;
   color: var(--nc) !important;
   text-decoration: none !important;
+  margin-right: auto;
 }
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--nc);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--bo);
+  color: var(--bo);
+}
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .nav-links {
   display: flex;
   gap: 28px;
@@ -164,7 +218,7 @@ h1, h2, h3 {
 .hero p {
   font-size: 15.5px;
   line-height: 1.75;
-  color: #dcdcdc;
+  color: var(--text-body);
   margin: 0 0 14px 0;
 }
 .avatar {
@@ -178,7 +232,7 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   font-size: 12.5px;
-  color: #777;
+  color: var(--text-faint);
   text-align: center;
   object-fit: cover;
 }
@@ -283,7 +337,7 @@ h1, h2, h3 {
 .item-text {
   font-size: 15px;
   line-height: 1.6;
-  color: #e5e5e5;
+  color: var(--text-body);
 }
 .empty-note {
   font-size: 14px;

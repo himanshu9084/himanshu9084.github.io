@@ -31,7 +31,7 @@ const SHEETS = {
 
    Either way, this is the only line you change.
    ============================================================ */
-const PROFILE_PHOTO_URL = 'img/placeholder.svg';
+const PROFILE_PHOTO_URL = 'https://scai.iitd.ac.in/public/uploads/aiz258466_himanshukumar.jpg';
 
 /* ---------------- Workbook loading (via SheetJS, loaded in <head>) ---------------- */
 let _workbookPromise = null;
@@ -164,7 +164,27 @@ async function renderSection(key, containerId, { limit, renderer, sortField } = 
   }
 }
 
+/* ---------------- Theme toggle (light / dark) ----------------
+   The actual theme is applied by a tiny inline script in each page's
+   <head> (it has to run before CSS paints, to avoid a flash of the
+   wrong theme — that part can't live here in the external file, which
+   loads too late for that). This just wires up the button's click and
+   keeps localStorage updated; both places agree on the same key/values
+   ('theme' => 'dark' | 'light'). */
+function initThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable — theme just won't persist */ }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initThemeToggle();
+
   // Mobile hamburger toggle — works on every page that includes the nav markup.
   const btn = document.querySelector('.hamburger');
   const links = document.querySelector('.nav-links');
