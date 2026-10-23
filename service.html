@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <script>
   // Apply the saved theme before anything paints, so there's no flash of
-  // the wrong theme on load. Default is "dark" (the site's original look)
-  // for anyone who hasn't chosen yet. The click handler that lets people
-  // actually change it lives in js/site.js.
+  // the wrong theme on load. Default is "light" for anyone who hasn't
+  // chosen yet. The click handler that lets people actually change it
+  // lives in js/site.js.
   (function () {
     try {
       var saved = localStorage.getItem('theme');
-      document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved === 'dark' ? 'dark' : 'light');
     } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   })();
 </script>
@@ -55,12 +55,23 @@
 
 <footer id="contact" class="site-footer">
   <p>Open to collaborations and opportunities — feel free to reach out.</p>
-  <a class="btn-outline" href="#" rel="nofollow" data-user="himanshu" data-domain="example.com">Email me</a>
+  <a class="btn-outline" id="email-link" href="#" rel="nofollow">Email me</a>
 </footer>
 
 <script src="js/site.js"></script>
 <script>
   renderSection('service', 'service-list', { renderer: renderNewsLike, sortField: 'date' });
+
+  // Email, base64-encoded so neither "@" nor "mailto:" nor the address
+  // itself appears anywhere in this page's source — only decoded in the
+  // browser at runtime. To change the address: encode it yourself, e.g.
+  // in a browser console run btoa('you@domain.com'), and paste the
+  // result below. Keep this in sync with the same block in index.html.
+  (function () {
+    var encodedEmail = 'aGltYW5zaHU5MDgyQGdtYWlsLmNvbQ==';
+    var link = document.getElementById('email-link');
+    if (link) link.href = 'mailto:' + atob(encodedEmail);
+  })();
 </script>
 </body>
 </html>

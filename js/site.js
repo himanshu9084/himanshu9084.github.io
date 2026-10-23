@@ -31,7 +31,7 @@ const SHEETS = {
 
    Either way, this is the only line you change.
    ============================================================ */
-const PROFILE_PHOTO_URL = 'https://scai.iitd.ac.in/public/uploads/aiz258466_himanshukumar.jpg';
+const PROFILE_PHOTO_URL = 'img/placeholder.svg';
 
 /* ---------------- Workbook loading (via SheetJS, loaded in <head>) ---------------- */
 let _workbookPromise = null;
@@ -198,13 +198,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Profile photo (index.html only — other pages have no #avatar element)
   const avatar = document.getElementById('avatar');
   if (avatar && PROFILE_PHOTO_URL) avatar.src = PROFILE_PHOTO_URL;
-
-  // Email links: built from data-user/data-domain at runtime so the
-  // address never sits as plain text (or "mailto:...@...") in the HTML
-  // that scrapers read. Not bulletproof against bots that run JS, but it
-  // stops the simple "grep the page for an @ sign" crawlers most spam
-  // harvesting relies on.
-  document.querySelectorAll('[data-user][data-domain]').forEach(el => {
-    el.setAttribute('href', 'mailto:' + el.dataset.user + '@' + el.dataset.domain);
-  });
 });

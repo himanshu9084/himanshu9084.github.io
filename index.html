@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <script>
   // Apply the saved theme before anything paints, so there's no flash of
-  // the wrong theme on load. Default is "dark" (the site's original look)
-  // for anyone who hasn't chosen yet. The click handler that lets people
-  // actually change it lives in js/site.js.
+  // the wrong theme on load. Default is "light" for anyone who hasn't
+  // chosen yet. The click handler that lets people actually change it
+  // lives in js/site.js.
   (function () {
     try {
       var saved = localStorage.getItem('theme');
-      document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved === 'dark' ? 'dark' : 'light');
     } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   })();
 </script>
